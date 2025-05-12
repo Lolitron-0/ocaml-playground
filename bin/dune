@@ -1,0 +1,6 @@
+(executable
+ (public_name ocaml-playground)
+ (name main)
+ (modes byte exe)
+ (libraries raylib raygui ocaml_playground scenes))
+

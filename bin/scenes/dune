@@ -1,0 +1,3 @@
+(library
+ (name scenes)
+ (libraries ocaml_playground raylib core))
