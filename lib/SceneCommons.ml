@@ -9,22 +9,27 @@ type t = {
 
 let (render_texture : RenderTexture.t option ref) = ref None
 
-(* let prevent_player_collision data = *)
-(*   List.exists (fun obj -> Object.collides_with player obj) data.objects *)
+let prevent_player_collision objects player =
+  let player = player in
+  if List.exists (fun obj -> Object.collides_with player obj) objects then
+    Player.undo_movement player
+  else player
 
 let create objects lighting player postprocess_shader_path =
   let shader = LightingSystem.shader lighting in
   List.iter (fun obj -> Object.apply_shader shader obj) objects;
   let postprocess_shader = load_shader "" postprocess_shader_path in
   let render_width_loc = get_shader_location postprocess_shader "renderWidth" in
-  let render_height_loc = get_shader_location postprocess_shader "renderHeight" in
+  let render_height_loc =
+    get_shader_location postprocess_shader "renderHeight"
+  in
   let render_width_ptr =
     to_voidp @@ Ctypes.allocate Ctypes.float (float @@ get_screen_width ())
   in
   let render_height_ptr =
     to_voidp @@ Ctypes.allocate Ctypes.float (float @@ get_screen_height ())
   in
-  set_shader_value postprocess_shader  render_width_loc render_width_ptr
+  set_shader_value postprocess_shader render_width_loc render_width_ptr
     ShaderUniformDataType.Float;
   set_shader_value postprocess_shader render_height_loc render_height_ptr
     ShaderUniformDataType.Float;
@@ -71,10 +76,13 @@ let render_to_screen (draw_overlay_f : unit -> unit) scene =
        (float @@ Texture2D.width texture2d)
        (float @@ -Texture2D.height texture2d))
     (Vector2.zero ()) Color.white;
+
   end_shader_mode ();
   draw_overlay_f ();
   end_drawing ()
 
 let update (scene : t) =
-  let player = Player.update scene.player in
+  let player =
+    Player.update scene.player |> prevent_player_collision scene.objects
+  in
   { scene with player }

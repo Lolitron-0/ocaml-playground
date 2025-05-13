@@ -11,7 +11,7 @@ end
 
 let setup () =
   set_config_flags [ ConfigFlags.Msaa_4x_hint ];
-  init_window width height "raylib [models] example - waving cubes";
+  init_window width height "playground";
   SceneCommons.init ();
   set_target_fps 60;
   disable_cursor ();

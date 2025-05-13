@@ -29,7 +29,7 @@ let create initial_position look_dir =
   let camera =
     FPCamera.create
       (Vector3.add initial_position (Vector3.create 0. player_height 0.))
-     look_dir 
+      look_dir
   in
   let bbox = calc_bbox initial_position in
   {
@@ -94,4 +94,7 @@ let update (player : t) =
   FPCamera.update player.fpcamera;
   { player with position; bbox; old_position }
 
-let undo_movement player = { player with position = player.old_position }
+let undo_movement player =
+  let delta = Vector3.subtract player.old_position player.position in
+  FPCamera.add_position player.fpcamera delta;
+  { player with position = player.old_position }
