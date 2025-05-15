@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    name: build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { ocaml-compiler: 5.0.0, os: ubuntu-latest }
+          - { ocaml-compiler: 5.0.0, os: windows-latest }
+          - { ocaml-compiler: 5.0.0, os: macos-latest }
+          - { ocaml-compiler: 4.14.0, os: ubuntu-latest }
+          - { ocaml-compiler: 4.14.0, os: windows-latest }
+          - { ocaml-compiler: 4.14.0, os: macos-latest }
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Re-synchronize the package index files on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update
+
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: opam pin -n .
+
+      - run: opam install . --deps-only
+
+      - run: opam exec -- dune build
