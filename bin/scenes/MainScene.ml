@@ -6,7 +6,25 @@ module Impl : SceneSign.S = struct
     common : SceneCommons.t;
     picture_tex : Texture2D.t;
     picture_pos : Vector3.t;
+    hand_anim : UIAnim.t;
+    hand_anim_rect : Rectangle.t;
   }
+
+  let picture_size = 10.
+
+  let get_picture_bbox picture_tex picture_pos =
+    let w = float (Texture2D.width picture_tex) *. picture_size in
+    let h = float (Texture2D.height picture_tex) *. picture_size in
+    let aspect = h /. w in
+    let off_h = picture_size *. aspect in
+    let off_w = picture_size /. 2. in
+    let min =
+      Vector3.subtract picture_pos (Vector3.create off_w (off_h /. 2.) off_w)
+    in
+    let max =
+      Vector3.add picture_pos (Vector3.create off_w (off_h /. 2.) off_w)
+    in
+    BoundingBox.create min max
 
   let load () =
     let player =
@@ -40,17 +58,27 @@ module Impl : SceneSign.S = struct
       LightingSystem.create ()
       |> LightingSystem.add_dir_light (Vector3.create 0. 0. 0.)
            (Vector3.create 1. (-1.) (-1.))
-           Color.white
-      |> LightingSystem.add_point_light picture_pos Color.orange
+           1.0 Color.white
+      |> LightingSystem.add_point_light picture_pos 0.5
+           (Color.create 250 220 200 255)
     in
     let objects = pillars @ [ floor ] in
     let postprocess_shader_path = "resources/shaders/postprocess_main.fs" in
-
+    let hand_anim = UIAnim.create "resources/textures/hand_anim1.png" 128 4 in
+    let hand_anim_size = get_screen_width () / 2 in
+    let hand_anim_rect =
+      Rectangle.create
+        (float @@ (get_screen_width () - hand_anim_size))
+        (float @@ (get_screen_height () - hand_anim_size))
+        (float hand_anim_size) (float hand_anim_size)
+    in
     {
       common =
         SceneCommons.create objects lighting player postprocess_shader_path;
       picture_tex;
       picture_pos;
+      hand_anim;
+      hand_anim_rect;
     }
 
   let draw (scene : t) =
@@ -61,21 +89,37 @@ module Impl : SceneSign.S = struct
         SceneCommons.draw scene.common;
         let camera = Player.get_view scene.common.player in
         draw_billboard camera scene.picture_tex scene.picture_pos 10.
-          Color.white)
+          Color.white;
+        draw_bounding_box
+          (get_picture_bbox scene.picture_tex scene.picture_pos)
+          Color.red)
       scene.common;
 
     SceneCommons.render_to_screen
       (fun () ->
         draw_fps 10 (get_screen_height () - 20);
+        UIAnim.draw scene.hand_anim_rect scene.hand_anim;
         Player.draw_2d scene.common.player)
       scene.common
 
   let update scene =
     let common = SceneCommons.update scene.common in
-    let picture_pos_y = (sin @@ get_time () *. 2.0) *. 0.04 in
+    let picture_pos_y = (sin @@ (get_time () *. 2.0)) *. 0.04 in
     Vector3.set_y scene.picture_pos
       (Vector3.y scene.picture_pos +. picture_pos_y);
-    ({ scene with common }, None)
+
+    let look_ray = SceneCommons.get_screen_to_world_ray common in
+    let picture_bbox = get_picture_bbox scene.picture_tex scene.picture_pos in
+    match UIAnim.finished scene.hand_anim with
+    | true -> ({ scene with common }, Some SceneEnumerator.GraveyardScene)
+    | false ->
+        let hand_anim =
+          if SceneCommons.interacted look_ray picture_bbox then
+            scene.hand_anim |> UIAnim.restart |> UIAnim.start
+          else scene.hand_anim
+        in
+        let hand_anim = UIAnim.update hand_anim in
+        ({ scene with common; hand_anim }, None)
 end
 
 include Impl

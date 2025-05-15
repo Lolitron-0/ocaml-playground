@@ -85,6 +85,9 @@ let update (player : t) =
     Vector3.zero () |> Vector3.add vel_forward |> Vector3.add vel_backward
     |> Vector3.add vel_right |> Vector3.add vel_left
   in
+  let velocity =
+    if is_key_down Key.Left_shift then Vector3.scale velocity 5. else velocity
+  in
   Vector3.set_y velocity 0.;
   let old_position = player.position in
   let position = Vector3.add player.position velocity in

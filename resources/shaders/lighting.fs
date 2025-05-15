@@ -20,6 +20,7 @@ out vec4 finalColor;
 struct Light {
     int enabled;
     int type;
+    float strength;
     vec3 position;
     vec3 target;
     vec4 color;
@@ -59,11 +60,11 @@ void main()
             }
 
             float NdotL = max(dot(normal, light), 0.0);
-            lightDot += lights[i].color.rgb*NdotL;
+            lightDot += lights[i].color.rgb*NdotL*lights[i].strength;
 
             float specCo = 0.0;
             if (NdotL > 0.0) specCo = pow(max(0.0, dot(viewD, reflect(-(light), normal))), 16.0); // 16 refers to shine
-            specular += specCo;
+            specular += specCo * lights[i].strength;
         }
     }
 

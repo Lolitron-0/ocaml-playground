@@ -1,1 +1,1 @@
-type t = MainScene
+type t = MainScene | GraveyardScene

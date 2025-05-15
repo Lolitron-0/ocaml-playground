@@ -1,5 +1,7 @@
 open Raylib
 
+let interaction_distance = 20.0
+
 type t = {
   objects : Object.t list;
   lighting : LightingSystem.t;
@@ -33,7 +35,7 @@ let create objects lighting player postprocess_shader_path =
     ShaderUniformDataType.Float;
   set_shader_value postprocess_shader render_height_loc render_height_ptr
     ShaderUniformDataType.Float;
-  { objects; lighting; player; postprocess_shader }
+  { objects; lighting; player; postprocess_shader;  }
 
 let destroy (data : t) =
   List.iter Object.destroy data.objects;
@@ -86,3 +88,15 @@ let update (scene : t) =
     Player.update scene.player |> prevent_player_collision scene.objects
   in
   { scene with player }
+
+let get_screen_to_world_ray (scene : t) =
+  let camera = Player.get_view scene.player in
+  let cam_pos = Camera3D.position camera in
+  let cam_fwd = FPCamera.forward_norm @@ Player.fpcamera scene.player in
+  Ray.create cam_pos cam_fwd
+
+let interacted ray bbox =
+  let col = get_ray_collision_box ray bbox in
+  is_mouse_button_pressed MouseButton.Left
+  && RayCollision.hit col
+  && RayCollision.distance col < interaction_distance

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Haus
+* source:	https://sketchfab.com/3d-models/haus-d91f8bf8dfbd4b89bac240592f3faf16
+* author:	fabienne-orsinge (https://sketchfab.com/fabienne-orsinge)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Haus" (https://sketchfab.com/3d-models/haus-d91f8bf8dfbd4b89bac240592f3faf16) by fabienne-orsinge (https://sketchfab.com/fabienne-orsinge) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

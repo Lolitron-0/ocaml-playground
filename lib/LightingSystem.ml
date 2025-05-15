@@ -10,11 +10,13 @@ module Light = struct
   type t = {
     enabled : bool;
     light_type : LightType.t;
+    strength : float;
     position : Vector3.t;
     target : Vector3.t option;
     color : Color.t;
     enabled_loc : ShaderLoc.t;
     light_type_loc : ShaderLoc.t;
+    strength_loc : ShaderLoc.t;
     position_loc : ShaderLoc.t;
     target_loc : ShaderLoc.t;
     color_loc : ShaderLoc.t;
@@ -24,11 +26,13 @@ module Light = struct
     {
       enabled = false;
       light_type = LightType.Point;
+      strength = 0.0;
       position = Vector3.zero ();
       target = None;
       color = Color.white;
       enabled_loc = 0;
       light_type_loc = 0;
+      strength_loc = 0;
       position_loc = 0;
       target_loc = 0;
       color_loc = 0;
@@ -59,7 +63,7 @@ let create () =
     failwith "Failed to compile lighting shader";
   { lights = Array.make max_lights Light.default; light_count = 0; shader }
 
-let create_point_light position color system =
+let create_point_light position strength color system =
   let get_loc_name loc =
     Printf.sprintf "lights[%i].%s" system.light_count loc
   in
@@ -68,11 +72,13 @@ let create_point_light position color system =
     {
       Light.enabled = true;
       light_type = LightType.Point;
+      strength;
       position;
       target = None;
       color;
       enabled_loc = get_loc "enabled";
       light_type_loc = get_loc "type";
+      strength_loc = get_loc "strength";
       position_loc = get_loc "position";
       target_loc = get_loc "target";
       color_loc = get_loc "color";
@@ -80,13 +86,13 @@ let create_point_light position color system =
   in
   light
 
-let add_point_light position color system =
-  let light = create_point_light position color system in
+let add_point_light position strength color system =
+  let light = create_point_light position strength color system in
   system.lights.(system.light_count) <- light;
   { system with light_count = system.light_count + 1 }
 
-let add_dir_light position target color system =
-  let point_light = create_point_light position color system in
+let add_dir_light position target strength color system =
+  let point_light = create_point_light position strength color system in
   let light =
     {
       point_light with
@@ -116,6 +122,11 @@ let update_shader system camera =
     let light_type_ptr =
       to_voidp @@ Ctypes.allocate Ctypes.int (LightType.to_int light.light_type)
     in
+    let strength_ptr =
+      to_voidp @@ Ctypes.allocate Ctypes.float light.strength
+    in
+    set_shader_value shader light.strength_loc strength_ptr
+      ShaderUniformDataType.Float;
     set_shader_value shader light.light_type_loc light_type_ptr
       ShaderUniformDataType.Int;
     set_shader_value shader light.position_loc
