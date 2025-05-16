@@ -15,7 +15,6 @@
  (depends ocaml
           raylib
           raygui
-          core
           (ocaml-lsp-server :dev)
           (ocamlformat :dev))
  (tags

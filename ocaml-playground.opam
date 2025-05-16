@@ -10,7 +10,6 @@ depends: [
   "ocaml"
   "raylib"
   "raygui"
-  "core"
   "ocaml-lsp-server" {dev}
   "ocamlformat" {dev}
   "odoc" {with-doc}
