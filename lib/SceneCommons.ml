@@ -7,6 +7,7 @@ type t = {
   lighting : LightingSystem.t;
   player : Player.t;
   postprocess_shader : Shader.t;
+  ambient_music : Music.t;
 }
 
 let (render_texture : RenderTexture.t option ref) = ref None
@@ -17,7 +18,7 @@ let prevent_player_collision objects player =
     Player.undo_movement player
   else player
 
-let create objects lighting player postprocess_shader_path =
+let create objects lighting player postprocess_shader_path ambient_music_path =
   let shader = LightingSystem.shader lighting in
   List.iter (fun obj -> Object.apply_shader shader obj) objects;
   let postprocess_shader = load_shader "" postprocess_shader_path in
@@ -35,11 +36,16 @@ let create objects lighting player postprocess_shader_path =
     ShaderUniformDataType.Float;
   set_shader_value postprocess_shader render_height_loc render_height_ptr
     ShaderUniformDataType.Float;
-  { objects; lighting; player; postprocess_shader;  }
+  let ambient_music = load_music_stream ambient_music_path in
+  Music.set_looping ambient_music true;
+  play_music_stream ambient_music;
+  { objects; lighting; player; postprocess_shader; ambient_music }
 
 let destroy (data : t) =
   List.iter Object.destroy data.objects;
-  unload_shader data.postprocess_shader
+  LightingSystem.destroy data.lighting;
+  unload_shader data.postprocess_shader;
+  unload_music_stream data.ambient_music
 
 let init () =
   render_texture :=
@@ -87,6 +93,7 @@ let update (scene : t) =
   let player =
     Player.update scene.player |> prevent_player_collision scene.objects
   in
+  update_music_stream scene.ambient_music;
   { scene with player }
 
 let get_screen_to_world_ray (scene : t) =

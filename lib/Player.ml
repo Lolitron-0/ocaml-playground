@@ -1,7 +1,7 @@
 open Raylib
 
-let player_height = 20.
-let player_width = 10.
+let player_height = 2.
+let player_width = 1.
 
 type t = {
   old_position : Vector3.t;
@@ -36,7 +36,7 @@ let create initial_position look_dir =
     position = initial_position;
     old_position = initial_position;
     fpcamera = camera;
-    speed = 1.;
+    speed = 0.1;
     bbox;
   }
 

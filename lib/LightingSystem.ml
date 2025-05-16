@@ -63,6 +63,8 @@ let create () =
     failwith "Failed to compile lighting shader";
   { lights = Array.make max_lights Light.default; light_count = 0; shader }
 
+let destroy system = unload_shader system.shader
+
 let create_point_light position strength color system =
   let get_loc_name loc =
     Printf.sprintf "lights[%i].%s" system.light_count loc
