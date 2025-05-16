@@ -38,7 +38,7 @@ let rec loop (scene : State.t) =
       SceneHandler.draw scene_data;
       let scene_module, scene_data =
         match new_scene_opt with
-        | None -> (scene.scene_module, scene.scene_data)
+        | None -> (scene.scene_module, scene_data)
         | Some new_scene_id ->
             let (module Handler) = SceneConverter.to_module new_scene_id in
             let scene_data = Handler.load () in

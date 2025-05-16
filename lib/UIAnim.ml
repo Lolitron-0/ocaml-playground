@@ -27,6 +27,7 @@ let create path_to_anim frame_width slow_scale =
 let destroy ui_anim = unload_texture ui_anim.anim_tex
 let width ui_anim = ui_anim.frame_width
 let height ui_anim = Texture2D.height ui_anim.anim_tex
+let current_frame ui_anim = ui_anim.current_frame
 
 let draw screen_rect ui_anim =
   draw_texture_pro ui_anim.anim_tex
@@ -41,7 +42,7 @@ let update ui_anim =
   match ui_anim.started with
   | false -> ui_anim
   | true ->
-      if ui_anim.frame_counter = ui_anim.slow_scale then
+      if ui_anim.frame_counter >= ui_anim.slow_scale then
         if ui_anim.current_frame = ui_anim.max_frame then ui_anim
         else
           {
@@ -54,4 +55,4 @@ let update ui_anim =
 let start ui_anim = { ui_anim with started = true }
 let started ui_anim = ui_anim.started
 let finished ui_anim = ui_anim.current_frame = ui_anim.max_frame
-let restart ui_anim = { ui_anim with current_frame = 0 }
+let restart ui_anim = { ui_anim with current_frame = 0;  }

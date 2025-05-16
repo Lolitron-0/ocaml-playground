@@ -64,7 +64,7 @@ module Impl : SceneSign.S = struct
     in
     let objects = pillars @ [ floor ] in
     let postprocess_shader_path = "resources/shaders/postprocess_main.fs" in
-    let hand_anim = UIAnim.create "resources/textures/hand_anim1.png" 128 4 in
+    let hand_anim = UIAnim.create "resources/textures/hand_anim1.png" 128 8 in
     let hand_anim_size = get_screen_width () / 2 in
     let hand_anim_rect =
       Rectangle.create
@@ -119,7 +119,8 @@ module Impl : SceneSign.S = struct
           else scene.hand_anim
         in
         let hand_anim = UIAnim.update hand_anim in
-        ({ scene with common; hand_anim }, None)
+
+        ({ scene with common; hand_anim = UIAnim.update hand_anim }, None)
 end
 
 include Impl
