@@ -14,9 +14,7 @@
  (synopsis "OCaml playground")
  (depends ocaml
           raylib
-          raygui
-          (ocaml-lsp-server :dev)
-          (ocamlformat :dev))
+          raygui)
  (tags
   ("game" "3d" "raylib")))
 
