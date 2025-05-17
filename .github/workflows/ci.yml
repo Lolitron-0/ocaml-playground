@@ -46,4 +46,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with: 
           name: build-${{ matrix.ocaml-compiler }}-${{ matrix.os }}
+          path: _build
           retention-days: 5
