@@ -1,8 +1,10 @@
 name: CI
 
 on:
-  - push
-  - pull_request
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -41,3 +43,10 @@ jobs:
       - run: opam install . --deps-only
 
       - run: opam exec -- dune build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: build-${{ matrix.ocaml-compiler }}-${{ matrix.os }}
+          path: _build
+          retention-days: 5
