@@ -26,12 +26,13 @@ let create_pro path_to_model position no_collide no_light =
   { model; position; bbox; no_collide; no_light }
 
 let create path_to_model position =
-  create_pro path_to_model position false false
+  create_pro  path_to_model position false false
 
 let create_no_collision path_to_model position =
-  create_pro path_to_model position true false
+  create_pro  path_to_model position true false
 
-let destroy obj = unload_model obj.model
+let destroy obj = 
+  unload_model obj.model
 
 let set_transform transform obj =
   Model.set_transform obj.model transform;
@@ -39,7 +40,7 @@ let set_transform transform obj =
   { obj with bbox }
 
 let apply_transform transform obj =
-  let new_mat = Matrix.multiply transform (Model.transform obj.model) in
+  let new_mat = Matrix.multiply (Model.transform obj.model) transform in
   set_transform new_mat obj
 
 let set_position position obj =
@@ -52,4 +53,5 @@ let collides_with player obj =
   | true -> false
   | false -> check_collision_boxes obj.bbox (Player.bbox player)
 
-let draw obj = draw_model obj.model obj.position 1. Color.white
+let draw obj = 
+  draw_model obj.model obj.position 1. Color.white

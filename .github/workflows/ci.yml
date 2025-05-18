@@ -14,12 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - { ocaml-compiler: 5.3.0, os: ubuntu-latest }
+          - { ocaml-compiler: 5.3.0, os: windows-latest }
           - { ocaml-compiler: 5.1.0, os: ubuntu-latest }
           - { ocaml-compiler: 5.1.0, os: windows-latest }
-          - { ocaml-compiler: 5.1.0, os: macos-latest }
           - { ocaml-compiler: 4.14.0, os: ubuntu-latest }
           - { ocaml-compiler: 4.14.0, os: windows-latest }
-          - { ocaml-compiler: 4.14.0, os: macos-latest }
 
     runs-on: ${{ matrix.os }}
 
@@ -37,8 +37,6 @@ jobs:
         uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
-
-      - run: opam pin -n .
 
       - run: opam install . --deps-only
 

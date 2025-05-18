@@ -28,29 +28,26 @@ module Impl : SceneSign.S = struct
 
   let load () =
     let player =
-      Player.create (Vector3.create (-5.) 0. 0.) LookDirection.XPlus
-    in
-    let pillar_obj =
-      Object.create "resources/models/doric_pillar.glb"
-        (Vector3.create 0. 0. 0.)
-      |> Object.set_transform (Utils.xzy_to_xyz_transform 0.1)
+      Player.create "resources/audio/sounds/steps_marble"
+        (Vector3.create (-5.) 0. 0.)
+        LookDirection.XPlus
     in
     let pillars =
       List.init 20 (fun i ->
           [
-            Object.set_position
+            Object.create "resources/models/doric_pillar.glb"
               (Vector3.create (float i *. 5.) 0. 5.)
-              pillar_obj;
-            Object.set_position
+            |> Object.set_transform (Utils.xzy_to_xyz_transform 0.1);
+            Object.create "resources/models/doric_pillar.glb"
               (Vector3.create (float i *. 5.) 0. (-5.))
-              pillar_obj;
+            |> Object.set_transform (Utils.xzy_to_xyz_transform 0.1);
           ])
       |> List.flatten
     in
     let floor =
       Object.create_no_collision "resources/models/marble_floor.glb"
         (Vector3.zero ())
-      |> Object.set_transform @@ Matrix.scale 100. 100. 100.
+      |> Object.set_transform @@ Matrix.scale 200. 200. 200.
       |> Object.set_position (Vector3.create 0. 0. 0.)
     in
     let picture_tex = load_texture "resources/textures/picture1.png" in
@@ -86,6 +83,11 @@ module Impl : SceneSign.S = struct
       hand_anim_rect;
     }
 
+  let unload (scene : t) =
+    SceneCommons.destroy scene.common;
+    UIAnim.destroy scene.hand_anim;
+    unload_texture scene.picture_tex
+
   let draw (scene : t) =
     SceneCommons.render_to_texture
       (fun () ->
@@ -93,10 +95,7 @@ module Impl : SceneSign.S = struct
         DebugUtils.draw_axis ();
         SceneCommons.draw scene.common;
         let camera = Player.get_view scene.common.player in
-        draw_billboard camera scene.picture_tex scene.picture_pos 1. Color.white;
-        draw_bounding_box
-          (get_picture_bbox scene.picture_tex scene.picture_pos)
-          Color.red)
+        draw_billboard camera scene.picture_tex scene.picture_pos 1. Color.white)
       scene.common;
 
     SceneCommons.render_to_screen
